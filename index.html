@@ -1,1 +1,309 @@
+import React, { useState, useEffect } from 'react';
+import { initializeApp } from 'firebase/app';
+import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from 'firebase/auth';
+import { getFirestore, collection, addDoc, getDocs, query, orderBy } from 'firebase/firestore';
 
+// Firebase Config
+const firebaseConfig = JSON.parse(__firebase_config);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const appId = typeof __app_id !== 'undefined' ? __app_id : 'ghazali-school-app';
+
+const App = () => {
+  const [user, setUser] = useState(null);
+  const [activeTab, setActiveTab] = useState('home');
+  const [rollNo, setRollNo] = useState('');
+  const [studentResult, setStudentResult] = useState(null);
+  const [admissionForm, setAdmissionForm] = useState({ name: '', father: '', class: '', phone: '' });
+  const [loading, setLoading] = useState(false);
+  const [statusMsg, setStatusMsg] = useState('');
+
+  // Principal Photo - Replace with your real photo link later
+  const principalImage = "https://api.dicebear.com/7.x/avataaars/svg?seed=PrincipalSabtain"; 
+
+  // Mock Gallery Data (Replace with real school event photos)
+  const galleryImages = [
+    { url: 'https://images.unsplash.com/photo-1546410531-bb4caa6b424d?w=400', title: 'Annual Function' },
+    { url: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=400', title: 'Classroom Activity' },
+    { url: 'https://images.unsplash.com/photo-1577896851231-70ef18881754?w=400', title: 'Sports Day' },
+    { url: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400', title: 'Prize Distribution' },
+    { url: 'https://images.unsplash.com/photo-1588072432836-e10032774350?w=400', title: 'School Building' },
+    { url: 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=400', title: 'Library' }
+  ];
+
+  useEffect(() => {
+    const initAuth = async () => {
+      try {
+        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+          await signInWithCustomToken(auth, __initial_auth_token);
+        } else {
+          await signInAnonymously(auth);
+        }
+      } catch (err) { console.error(err); }
+    };
+    initAuth();
+    const unsubscribe = onAuthStateChanged(auth, setUser);
+    return () => unsubscribe();
+  }, []);
+
+  const handleAdmission = async (e) => {
+    e.preventDefault();
+    if (!user) return;
+    setLoading(true);
+    try {
+      const col = collection(db, 'artifacts', appId, 'public', 'data', 'admissions');
+      await addDoc(col, { ...admissionForm, timestamp: new Date().toISOString() });
+      setStatusMsg("Darkhwast mosool ho chuki hai! Principal Sabtain Shafi rabta karenge.");
+      setAdmissionForm({ name: '', father: '', class: '', phone: '' });
+    } catch (err) { setStatusMsg("Ghalti! Dobara koshish karein."); }
+    setLoading(false);
+  };
+
+  const fetchResult = async () => {
+    if (!user || !rollNo) return;
+    setLoading(true);
+    try {
+      const col = collection(db, 'artifacts', appId, 'public', 'data', 'results');
+      const snap = await getDocs(col);
+      const res = snap.docs.map(d => d.data()).find(r => r.rollNo === rollNo);
+      if (res) { setStudentResult(res); setStatusMsg(""); } 
+      else { setStatusMsg("Roll Number nahi mila"); setStudentResult(null); }
+    } catch (err) { console.error(err); }
+    setLoading(false);
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 pb-20">
+      {/* Navigation */}
+      <nav className="bg-white shadow-lg sticky top-0 z-50 border-b-2 border-blue-100">
+        <div className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <div className="bg-blue-800 text-white w-12 h-12 rounded-xl flex items-center justify-center font-black text-2xl rotate-3 shadow-md">GS</div>
+            <div className="leading-none">
+              <h1 className="font-black text-blue-900 text-xl tracking-tighter">GHAZALI SCHOOL</h1>
+              <p className="text-[10px] text-green-600 font-bold uppercase tracking-[0.2em]">Khoh Darkhan Wala</p>
+            </div>
+          </div>
+          <div className="hidden md:flex gap-8 font-black text-xs uppercase tracking-widest text-slate-500">
+            <button onClick={() => setActiveTab('home')} className={activeTab === 'home' ? 'text-blue-700 border-b-2 border-blue-700 pb-1' : 'hover:text-blue-900 transition'}>Home</button>
+            <button onClick={() => setActiveTab('gallery')} className={activeTab === 'gallery' ? 'text-blue-700 border-b-2 border-blue-700 pb-1' : 'hover:text-blue-900 transition'}>Gallery</button>
+            <button onClick={() => setActiveTab('admission')} className={activeTab === 'admission' ? 'text-blue-700 border-b-2 border-blue-700 pb-1' : 'hover:text-blue-900 transition'}>Admission</button>
+            <button onClick={() => setActiveTab('results')} className={activeTab === 'results' ? 'text-blue-700 border-b-2 border-blue-700 pb-1' : 'hover:text-blue-900 transition'}>Results</button>
+          </div>
+          <button className="md:hidden text-blue-900 text-2xl" onClick={() => setActiveTab(activeTab === 'menu' ? 'home' : 'menu')}>
+            <i className={activeTab === 'menu' ? 'fas fa-times' : 'fas fa-bars'}></i>
+          </button>
+        </div>
+      </nav>
+
+      {/* Mobile Menu */}
+      {activeTab === 'menu' && (
+        <div className="bg-white w-full p-6 space-y-4 shadow-xl md:hidden animate-in slide-in-from-top duration-300">
+          <button onClick={() => setActiveTab('home')} className="block w-full text-left font-bold text-lg py-2 border-b">Home</button>
+          <button onClick={() => setActiveTab('gallery')} className="block w-full text-left font-bold text-lg py-2 border-b">Gallery</button>
+          <button onClick={() => setActiveTab('admission')} className="block w-full text-left font-bold text-lg py-2 border-b">Admission</button>
+          <button onClick={() => setActiveTab('results')} className="block w-full text-left font-bold text-lg py-2">Results</button>
+        </div>
+      )}
+
+      {/* Main Content */}
+      <main className="max-w-6xl mx-auto px-4 py-8">
+        
+        {activeTab === 'home' && (
+          <div className="space-y-12">
+            {/* Hero Section */}
+            <div className="relative overflow-hidden bg-blue-900 rounded-[2.5rem] p-8 md:p-20 text-white shadow-2xl">
+              <div className="relative z-10 max-w-2xl">
+                <span className="bg-green-500 text-white px-4 py-1 rounded-full text-xs font-black uppercase tracking-widest mb-4 inline-block">Best School in Area</span>
+                <h2 className="text-4xl md:text-6xl font-black mb-6 leading-tight">Behtareen Taleem, Roshan Mustaqbil!</h2>
+                <p className="text-blue-100 text-lg mb-8 font-medium">Ghazali School Khoh Darkhan Wala mein bachon ki zehni aur ikhlaqi tarbiyat hamari awaleen tarjih hai.</p>
+                <div className="flex flex-wrap gap-4">
+                  <button onClick={() => setActiveTab('admission')} className="bg-white text-blue-900 hover:bg-green-500 hover:text-white px-8 py-4 rounded-2xl font-black transition-all transform hover:scale-105 shadow-xl">Dakhla Lein</button>
+                  <button onClick={() => setActiveTab('results')} className="bg-blue-800 border-2 border-blue-700 hover:bg-blue-700 px-8 py-4 rounded-2xl font-black transition-all shadow-xl">Result Check Karein</button>
+                </div>
+              </div>
+              <div className="absolute top-0 right-0 w-1/2 h-full bg-blue-800 opacity-20 skew-x-12 transform translate-x-20"></div>
+            </div>
+
+            {/* Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {[
+                { label: 'Experienced Teachers', value: '15+', icon: 'fa-chalkboard-teacher', color: 'blue' },
+                { label: 'Happy Students', value: '300+', icon: 'fa-child', color: 'green' },
+                { label: 'Years of Excellence', value: '10+', icon: 'fa-award', color: 'yellow' },
+                { label: 'Success Rate', value: '100%', icon: 'fa-chart-line', color: 'red' }
+              ].map((stat, i) => (
+                <div key={i} className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 text-center">
+                  <i className={`fas ${stat.icon} text-2xl text-${stat.color}-500 mb-2`}></i>
+                  <p className="text-2xl font-black text-slate-800">{stat.value}</p>
+                  <p className="text-[10px] uppercase font-bold text-slate-400">{stat.label}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Principal Message */}
+            <div className="flex flex-col md:flex-row items-center gap-10 bg-white p-10 rounded-[2.5rem] shadow-sm border border-slate-100">
+              <div className="flex-shrink-0">
+                <div className="w-56 h-56 rounded-[2rem] overflow-hidden border-8 border-slate-50 shadow-xl">
+                  <img src={principalImage} alt="Sabtain Shafi" className="w-full h-full object-cover" />
+                </div>
+              </div>
+              <div>
+                <h3 className="text-3xl font-black text-blue-900 mb-4">Principal's Message</h3>
+                <p className="text-slate-600 text-lg leading-relaxed italic mb-6">
+                  "Muhammad Sabtain Shafi sahib ke zer-e-sarparasti, Ghazali School bachon ko jadeed taleem aur islami aqdaar se aarasta kar raha hai. Hamara maqsad har bache ki chupi hui salahiyaton ko ubharna hai."
+                </p>
+                <h4 className="font-black text-blue-800">- Muhammad Sabtain Shafi</h4>
+                <p className="text-sm font-bold text-slate-400 uppercase">Principal, Ghazali School</p>
+              </div>
+            </div>
+
+            {/* Notice Board */}
+            <div className="bg-yellow-50 p-8 rounded-[2.5rem] border-2 border-dashed border-yellow-200">
+              <h3 className="text-xl font-black text-yellow-800 mb-6 flex items-center gap-2">
+                <i className="fas fa-bullhorn animate-bounce"></i> Latest Notice Board
+              </h3>
+              <div className="space-y-4">
+                {[
+                  { date: '25 Feb 2024', msg: 'Salan Imtehanat ka schedule jald hi jari kiya jaye ga.' },
+                  { date: '20 Feb 2024', msg: 'New Admissions 2024 jari hain. Aaj hi rabta karein!' },
+                  { date: '15 Feb 2024', msg: 'School timings ab subah 8 baje se dopahar 2 baje tak hain.' }
+                ].map((n, i) => (
+                  <div key={i} className="flex gap-4 items-start bg-white p-4 rounded-2xl shadow-sm">
+                    <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-lg text-[10px] font-black whitespace-nowrap">{n.date}</span>
+                    <p className="text-sm font-bold text-slate-700">{n.msg}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'gallery' && (
+          <div className="animate-in fade-in duration-700">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl font-black text-blue-900 mb-2">School Gallery</h2>
+              <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">Yahan hamari mukhtalif sargarmiyon ki jhalak dekhein</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+              {galleryImages.map((img, i) => (
+                <div key={i} className="group relative overflow-hidden rounded-3xl shadow-lg aspect-video bg-slate-200">
+                  <img src={img.url} alt={img.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-blue-900/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                    <p className="text-white font-black text-lg">{img.title}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'admission' && (
+          <div className="max-w-2xl mx-auto bg-white p-10 rounded-[2.5rem] shadow-2xl border border-blue-50">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-black text-blue-900 mb-2">Online Admission Form</h2>
+              <p className="text-slate-400 font-bold text-sm">Apne bache ki detail niche darj karein</p>
+            </div>
+            <form onSubmit={handleAdmission} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="text-xs font-black text-slate-400 uppercase ml-2">Student Full Name</label>
+                <input required value={admissionForm.name} onChange={e => setAdmissionForm({...admissionForm, name: e.target.value})} className="w-full p-4 bg-slate-50 border-2 border-transparent focus:border-blue-500 rounded-2xl outline-none transition-all font-bold" placeholder="Bache ka Naam" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-black text-slate-400 uppercase ml-2">Father's Name</label>
+                <input required value={admissionForm.father} onChange={e => setAdmissionForm({...admissionForm, father: e.target.value})} className="w-full p-4 bg-slate-50 border-2 border-transparent focus:border-blue-500 rounded-2xl outline-none transition-all font-bold" placeholder="Walid ka Naam" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-black text-slate-400 uppercase ml-2">Class Applying For</label>
+                <select value={admissionForm.class} onChange={e => setAdmissionForm({...admissionForm, class: e.target.value})} className="w-full p-4 bg-slate-50 border-2 border-transparent focus:border-blue-500 rounded-2xl outline-none font-bold">
+                  <option>Playgroup</option>
+                  <option>Nursery / Prep</option>
+                  <option>Class 1 - 5</option>
+                  <option>Class 6 - 8</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-black text-slate-400 uppercase ml-2">Phone Number</label>
+                <input required value={admissionForm.phone} onChange={e => setAdmissionForm({...admissionForm, phone: e.target.value})} className="w-full p-4 bg-slate-50 border-2 border-transparent focus:border-blue-500 rounded-2xl outline-none font-bold" placeholder="0300-1234567" type="tel" />
+              </div>
+              <div className="md:col-span-2 pt-4">
+                <button disabled={loading} className="w-full bg-blue-900 text-white font-black py-5 rounded-2xl hover:bg-blue-800 transform hover:scale-[1.02] transition-all shadow-xl uppercase tracking-widest">
+                  {loading ? "Bheja ja raha hai..." : "Submit Application"}
+                </button>
+                {statusMsg && <p className="text-center mt-4 font-black text-green-600 animate-pulse">{statusMsg}</p>}
+              </div>
+            </form>
+          </div>
+        )}
+
+        {activeTab === 'results' && (
+          <div className="max-w-md mx-auto">
+            <div className="bg-white p-10 rounded-[2.5rem] shadow-2xl border border-green-50 text-center">
+              <div className="w-24 h-24 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-8 text-4xl shadow-inner">
+                <i className="fas fa-file-invoice"></i>
+              </div>
+              <h2 className="text-3xl font-black text-slate-800 mb-2">Check Result</h2>
+              <p className="text-slate-400 font-bold text-sm mb-8 uppercase tracking-widest">Apna Roll Number darj karein</p>
+              
+              <input 
+                value={rollNo} 
+                onChange={e => setRollNo(e.target.value)} 
+                className="w-full p-6 bg-slate-50 border-4 border-slate-100 focus:border-green-500 rounded-[2rem] outline-none text-3xl font-black text-center mb-8 tracking-[0.5em] text-slate-700" 
+                placeholder="0000" 
+              />
+              
+              <button onClick={fetchResult} disabled={loading} className="w-full bg-green-500 text-white font-black py-6 rounded-[2rem] hover:bg-green-600 transform hover:scale-[1.02] transition-all shadow-xl shadow-green-200">
+                {loading ? "Talash jari hai..." : "VIEW RESULT"}
+              </button>
+            </div>
+
+            {studentResult && (
+              <div className="mt-8 bg-white p-8 rounded-[2.5rem] shadow-2xl border-t-[12px] border-green-500 animate-in slide-in-from-bottom duration-500">
+                <div className="flex justify-between items-start mb-6">
+                  <div>
+                    <h3 className="text-2xl font-black text-slate-800 leading-tight">{studentResult.name}</h3>
+                    <p className="text-slate-400 font-black uppercase text-xs">Class: {studentResult.class}</p>
+                  </div>
+                  <div className="bg-green-100 text-green-700 px-4 py-1 rounded-full text-xs font-black tracking-widest">PASSED</div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-slate-50 p-5 rounded-[1.5rem] text-center">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Marks</p>
+                    <p className="text-4xl font-black text-slate-800">{studentResult.total}</p>
+                  </div>
+                  <div className="bg-blue-50 p-5 rounded-[1.5rem] text-center">
+                    <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-1">Obtained</p>
+                    <p className="text-4xl font-black text-blue-800">{studentResult.obtained}</p>
+                  </div>
+                </div>
+                <button className="w-full mt-6 text-slate-400 font-black text-[10px] uppercase hover:text-blue-500 transition"><i className="fas fa-download mr-1"></i> Download PDF Marksheet</button>
+              </div>
+            )}
+            {statusMsg && !studentResult && <p className="text-center font-black text-red-500 mt-6 animate-bounce">{statusMsg}</p>}
+          </div>
+        )}
+      </main>
+
+      {/* Quick Contact Bar */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t p-4 flex justify-around items-center md:hidden z-40">
+        <a href="tel:03047859898" className="text-blue-900 flex flex-col items-center">
+          <i className="fas fa-phone text-xl"></i>
+          <span className="text-[10px] font-bold">Call</span>
+        </a>
+        <a href="https://wa.me/923047859898" className="text-green-600 flex flex-col items-center">
+          <i className="fab fa-whatsapp text-2xl"></i>
+          <span className="text-[10px] font-bold">WhatsApp</span>
+        </a>
+        <button onClick={() => setActiveTab('admission')} className="bg-blue-900 text-white px-6 py-2 rounded-full font-black text-xs">ADMISSION</button>
+      </div>
+
+      {/* Desktop Floating WhatsApp */}
+      <a href="https://wa.me/923047859898" className="hidden md:flex fixed bottom-8 right-8 bg-green-500 text-white w-16 h-16 rounded-full items-center justify-center shadow-2xl hover:scale-110 transition-transform z-50 group">
+        <i className="fab fa-whatsapp text-3xl"></i>
+        <span className="absolute right-20 bg-white text-slate-800 px-4 py-2 rounded-xl text-xs font-black shadow-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap border">Chat with Principal</span>
+      </a>
+
+      <footer className="mt-20 py-10 text-center border-t bg-slate-50">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="flex justify-center
