@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ghazali School Khoh Darkhan Wala</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@400;700;900&display=swap');
+        body { font-family: 'Urbanist', sans-serif; }
+        .tab-content { display: none; }
+        .active-tab { display: block; }
+        .nav-btn:hover { color: #1e40af; transform: translateY(-1px); }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50 border-b-2 border-blue-100">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="bg-blue-800 text-white w-12 h-12 rounded-xl flex items-center justify-center font-black text-2xl rotate-3 shadow-md">GS</div>
+                <div class="leading-none">
+                    <h1 class="font-black text-blue-900 text-xl tracking-tighter uppercase">GHAZALI SCHOOL</h1>
+                    <p class="text-[10px] text-green-600 font-bold uppercase tracking-[0.2em]">Khoh Darkhan Wala</p>
+                </div>
+            </div>
+            <div class="hidden md:flex gap-6 font-bold text-sm uppercase text-slate-500">
+                <button onclick="showTab('home')" class="nav-btn transition-all">Home</button>
+                <button onclick="showTab('gallery')" class="nav-btn transition-all">Gallery</button>
+                <button onclick="showTab('admission')" class="nav-btn transition-all">Admission</button>
+                <button onclick="showTab('results')" class="nav-btn transition-all">Results</button>
+            </div>
+            <!-- Mobile Menu Icon -->
+            <div class="md:hidden text-blue-900 text-xl">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto px-4 py-8">
+        
+        <!-- HOME TAB -->
+        <div id="home" class="tab-content active-tab space-y-12 animate-in fade-in duration-500">
+            <!-- Hero Section -->
+            <div class="relative overflow-hidden bg-blue-900 rounded-[2.5rem] p-8 md:p-20 text-white shadow-2xl">
+                <div class="relative z-10 max-w-2xl text-center md:text-left">
+                    <span class="bg-green-500 text-white px-4 py-1 rounded-full text-xs font-black uppercase tracking-widest mb-4 inline-block">Muntakhib Taleem-e-Ghar</span>
+                    <h2 class="text-4xl md:text-6xl font-black mb-6 leading-tight">Behtareen Taleem, Roshan Mustaqbil!</h2>
+                    <p class="text-blue-100 text-lg mb-8 font-medium">Ghazali School Khoh Darkhan Wala mein bachon ki zehni aur ikhlaqi tarbiyat hamari awaleen tarjih hai.</p>
+                    <div class="flex flex-wrap gap-4 justify-center md:justify-start">
+                        <button onclick="showTab('admission')" class="bg-white text-blue-900 px-8 py-4 rounded-2xl font-black shadow-xl hover:bg-slate-100 transition-all transform hover:scale-105">Dakhla Lein</button>
+                        <button onclick="showTab('results')" class="bg-blue-800 border-2 border-blue-700 px-8 py-4 rounded-2xl font-black shadow-xl hover:bg-blue-700 transition-all">Result Check Karein</button>
+                    </div>
+                </div>
+                <div class="absolute top-0 right-0 w-1/2 h-full bg-blue-800 opacity-20 skew-x-12 transform translate-x-20 hidden md:block"></div>
+            </div>
+
+            <!-- Principal Message -->
+            <div class="flex flex-col md:flex-row items-center gap-10 bg-white p-8 md:p-12 rounded-[2.5rem] shadow-sm border border-slate-100">
+                <div class="w-48 h-48 rounded-[2rem] overflow-hidden border-8 border-slate-50 shadow-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-user-tie text-7xl text-blue-800"></i>
+                </div>
+                <div>
+                    <h3 class="text-3xl font-black text-blue-900 mb-4">Principal's Message</h3>
+                    <p class="text-slate-600 text-lg italic mb-6 leading-relaxed">
+                        "Muhammad Sabtain Shafi sahib ke zer-e-sarparasti, Ghazali School bachon ko jadeed taleem aur islami aqdaar se aarasta kar raha hai. Hamara maqsad har bache ko muashray ka aik behtareen fard banana hai."
+                    </p>
+                    <h4 class="font-black text-blue-800 text-xl">- Muhammad Sabtain Shafi</h4>
+                    <p class="text-sm font-bold text-slate-400 uppercase tracking-widest">Principal, Ghazali School</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- GALLERY TAB -->
+        <div id="gallery" class="tab-content text-center space-y-8">
+            <h2 class="text-4xl font-black text-blue-900">School Gallery</h2>
+            <p class="text-slate-500 font-bold uppercase tracking-widest text-xs">School ki Mukhtalif Sargarmiyan</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="group relative rounded-3xl overflow-hidden shadow-lg bg-slate-200 aspect-video flex items-center justify-center transition-all hover:shadow-2xl">
+                    <i class="fas fa-image text-5xl text-slate-400 group-hover:scale-110 transition-transform"></i>
+                    <p class="absolute bottom-4 text-slate-500 font-bold text-sm">Classroom</p>
+                </div>
+                <div class="group relative rounded-3xl overflow-hidden shadow-lg bg-slate-200 aspect-video flex items-center justify-center transition-all hover:shadow-2xl">
+                    <i class="fas fa-image text-5xl text-slate-400 group-hover:scale-110 transition-transform"></i>
+                    <p class="absolute bottom-4 text-slate-500 font-bold text-sm">Annual Function</p>
+                </div>
+                <div class="group relative rounded-3xl overflow-hidden shadow-lg bg-slate-200 aspect-video flex items-center justify-center transition-all hover:shadow-2xl">
+                    <i class="fas fa-image text-5xl text-slate-400 group-hover:scale-110 transition-transform"></i>
+                    <p class="absolute bottom-4 text-slate-500 font-bold text-sm">Sports Day</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ADMISSION TAB -->
+        <div id="admission" class="tab-content max-w-2xl mx-auto">
+            <div class="bg-white p-10 rounded-[2.5rem] shadow-2xl border border-blue-50 text-center">
+                <h2 class="text-3xl font-black text-blue-900 mb-8 uppercase tracking-tight">Admission Open 2024-25</h2>
+                <div class="w-20 h-20 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-8 text-3xl">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+                <div class="space-y-6">
+                    <p class="text-lg font-bold text-slate-700">Online dakhly ya mazeed maloomat ke liye Principal se rabta karein:</p>
+                    <div class="bg-slate-50 p-6 rounded-3xl border-2 border-dashed border-blue-200">
+                        <a href="tel:03047859898" class="text-3xl md:text-5xl font-black text-blue-800 block hover:scale-105 transition-transform">0304-7859898</a>
+                        <p class="text-slate-400 font-black mt-2 text-sm uppercase">Call Karein ya WhatsApp</p>
+                    </div>
+                    <p class="text-slate-500 italic text-sm">Aap school office subah 8 baje se 2 baje tak tashreef la sakte hain.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- RESULTS TAB -->
+        <div id="results" class="tab-content max-w-md mx-auto text-center">
+            <div class="bg-white p-10 rounded-[2.5rem] shadow-2xl border border-green-50">
+                <div class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-8 text-3xl">
+                    <i class="fas fa-file-invoice"></i>
+                </div>
+                <h2 class="text-3xl font-black text-slate-800 mb-6 uppercase tracking-tight">Exam Results</h2>
+                <p class="text-slate-400 font-bold text-xs uppercase mb-8 tracking-widest">Apna Roll Number darj karein</p>
+                
+                <input type="text" id="rollNo" class="w-full p-5 bg-slate-50 border-4 border-slate-100 focus:border-green-500 rounded-3xl text-center text-3xl font-black mb-8 outline-none transition-all" placeholder="0000">
+                
+                <button onclick="checkResult()" class="w-full bg-green-500 text-white font-black py-5 rounded-3xl shadow-lg hover:bg-green-600 transition-all transform hover:scale-[1.02]">
+                    VIEW RESULT
+                </button>
+            </div>
+            <p id="resultMsg" class="mt-6 font-black text-red-500 hidden animate-bounce"></p>
+        </div>
+
+    </main>
+
+    <!-- Quick Call Mobile Button -->
+    <a href="tel:03047859898" class="fixed bottom-6 right-6 bg-blue-800 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-2xl md:hidden z-50">
+        <i class="fas fa-phone"></i>
+    </a>
+
+    <!-- Footer -->
+    <footer class="mt-20 py-12 text-center border-t bg-white">
+        <div class="max-w-6xl mx-auto px-4">
+            <p class="font-black text-blue-900 tracking-wider">GHAZALI SCHOOL KHO DARKHAN WALA</p>
+            <div class="flex justify-center gap-4 mt-4 text-slate-400">
+                <i class="fab fa-facebook hover:text-blue-600 cursor-pointer"></i>
+                <i class="fab fa-whatsapp hover:text-green-500 cursor-pointer"></i>
+            </div>
+            <p class="text-[10px] text-slate-400 mt-6 font-bold uppercase tracking-[0.4em]">Official School Portal • 2024</p>
+            <p class="text-[9px] text-slate-300 mt-2 font-bold italic">Developed by Sabtain Shafi</p>
+        </div>
+    </footer>
+
+    <script>
+        // Tab switching logic
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active-tab');
+            });
+            document.getElementById(tabId).classList.add('active-tab');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Mock Result Check
+        function checkResult() {
+            const roll = document.getElementById('rollNo').value;
+            const msg = document.getElementById('resultMsg');
+            if(!roll) {
+                msg.innerText = "Roll Number darj karein!";
+                msg.classList.remove('hidden');
+            } else {
+                alert("Sabtain Shafi sahib, Result system update ho raha hai. Jald hi database se connect ho jaye ga.");
+                msg.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
+
